@@ -1,0 +1,30 @@
+# Code Auditor Dependencies
+
+# Core dependencies
+PyYAML>=6.0.1
+watchdog>=3.0.0
+
+# Security scanning
+bandit>=1.7.5
+safety>=2.3.5
+
+# Code analysis
+pylint>=3.0.0
+flake8>=6.1.0
+
+# Database
+sqlite3-python>=1.0.0  # Built-in, but listed for clarity
+
+# Utilities
+colorama>=0.4.6  # Terminal colors
+tabulate>=0.9.0  # Table formatting
+click>=8.1.7  # CLI framework (optional, enhances argparse)
+
+# Reporting
+Jinja2>=3.1.2  # HTML report generation
+markdown>=3.5  # Markdown processing
+
+# Optional: Advanced features
+# python-dotenv>=1.0.0  # Environment variable management
+# requests>=2.31.0  # For external vulnerability databases
+# gitpython>=3.1.40  # Git integration

@@ -1,0 +1,117 @@
+name: code-auditor
+version: 1.0.0
+description: Security scanning agent that monitors codebases for vulnerabilities, secrets, and security issues
+
+triggers:
+  - type: file_change
+    path: "${WATCH_PATH}"
+    patterns:
+      - "*.py"
+      - "*.js"
+      - "*.java"
+      - "*.go"
+      - "*.rb"
+      - "*.php"
+    exclude:
+      - "*/node_modules/*"
+      - "*/venv/*"
+      - "*/.git/*"
+  
+  - type: schedule
+    cron: "0 2 * * *"  # Daily full scan at 2 AM
+
+settings:
+  # Directories to monitor
+  watch_directories:
+    - "${WATCH_PATH:-/workspace}"
+  
+  # Patterns to exclude from scanning
+  exclude_patterns:
+    - "*/node_modules/*"
+    - "*/venv/*"
+    - "*/env/*"
+    - "*/.git/*"
+    - "*/build/*"
+    - "*/dist/*"
+    - "*.min.js"
+    - "*.pyc"
+  
+  # Minimum severity level to report (critical, high, medium, low)
+  severity_threshold: "medium"
+  
+  # Secret detection patterns (regex)
+  secret_patterns:
+    - name: "Generic API Key"
+      pattern: "[aA][pP][iI][_-]?[kK][eE][yY]\\s*[=:]\\s*['\"]?[A-Za-z0-9_\\-]{20,}['\"]?"
+      severity: "critical"
+    
+    - name: "Generic Password"
+      pattern: "[pP][aA][sS][sS][wW][oO][rR][dD]\\s*[=:]\\s*['\"]?[^'\"\\s]{8,}['\"]?"
+      severity: "critical"
+    
+    - name: "AWS Access Key"
+      pattern: "AKIA[0-9A-Z]{16}"
+      severity: "critical"
+    
+    - name: "GitHub Token"
+      pattern: "ghp_[A-Za-z0-9_]{36}"
+      severity: "critical"
+    
+    - name: "Private Key"
+      pattern: "-----BEGIN (RSA |DSA |EC |OPENSSH )?PRIVATE KEY-----"
+      severity: "critical"
+    
+    - name: "JWT Token"
+      pattern: "eyJ[A-Za-z0-9_-]*\\.[A-Za-z0-9_-]*\\.[A-Za-z0-9_-]*"
+      severity: "high"
+  
+  # Security vulnerability checks
+  vulnerability_checks:
+    - sql_injection
+    - command_injection
+    - path_traversal
+    - xss
+    - insecure_deserialization
+    - weak_crypto
+    - hardcoded_credentials
+  
+  # Notification settings
+  notification:
+    critical_immediate: true
+    daily_summary: true
+    email: "${ADMIN_EMAIL}"
+    slack_webhook: "${SLACK_WEBHOOK_URL}"
+  
+  # Database settings
+  database:
+    path: "./data/security.db"
+    retention_days: 90
+  
+  # Report generation
+  reports:
+    formats:
+      - json
+      - html
+    output_dir: "./reports"
+    include_remediation: true
+
+permissions:
+  - filesystem:read
+  - filesystem:write:./data
+  - filesystem:write:./logs
+  - filesystem:write:./reports
+  - network:outbound:github.com  # For dependency checks
+
+resources:
+  max_memory: 512MB
+  max_cpu: 50%
+  disk_space: 1GB
+
+metadata:
+  author: "UPLIFT Security Team"
+  tags:
+    - security
+    - monitoring
+    - automation
+  documentation: "./README.md"
+  repository: "https://github.com/operatoruplift/uplift-agents"
