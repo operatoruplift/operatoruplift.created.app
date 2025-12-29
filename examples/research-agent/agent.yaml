@@ -1,0 +1,15 @@
+# agent.yaml
+identity: "researcher-v1"
+capabilities: ["web-search", "summarization"]
+
+permissions:
+  memory:
+    - scope: "uplift://agent/private"
+      access: "read-write"
+      description: "Stores my research notes."
+    - scope: "uplift://user/interests"
+      access: "read-only"
+      description: "Allows me to tailor research to your hobbies."
+  orchestration:
+    - target_agent_id: "writer-agent-v1"
+      description: "Required to turn research notes into articles."

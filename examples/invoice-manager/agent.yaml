@@ -1,0 +1,51 @@
+# agent.yaml
+identity: "invoice-manager-v1"
+version: "0.1.0"
+description: "Monitors local invoices and orchestrates payment workflows."
+
+# 1. Resource Capabilities
+# These define what low-level OS features the agent can use.
+capabilities:
+  - web-search      # For looking up company tax IDs
+  - file-watcher    # To trigger actions when a new file is added
+  - pdf-parsing     # To read invoice data
+
+# 2. Permissions: Memory
+# Defining where the agent stores its state and what it can read.
+permissions:
+  memory:
+    - scope: "uplift://agent/private"
+      access: "read-write"
+      description: "Required to track which invoices have already been processed."
+    
+    - scope: "uplift://user/financial-prefs"
+      access: "read-only"
+      description: "Used to determine payment limits and preferred accounts."
+
+# 3. Permissions: Filesystem
+# Local-first agents need explicit paths to interact with your files.
+  files:
+    - path: "~/Documents/UPLIFT/Inbound"
+      access: "read"
+      description: "Target folder for new invoice PDFs."
+      
+    - path: "~/Documents/UPLIFT/Processed"
+      access: "write"
+      description: "Folder to move completed invoices to."
+
+# 4. Permissions: Orchestration
+# Defining which 'Sub-Agents' this manager is allowed to call.
+  orchestration:
+    - target_agent_id: "payment-gateway-agent"
+      description: "Used to execute the actual payment transaction."
+      
+    - target_agent_type: "reporting"
+      description: "Used to log the transaction in the global expense sheet."
+
+# 5. Network Access
+# UPLIFT blocks all traffic by default. You must whitelist specific domains.
+  network:
+    - domain: "api.stripe.com"
+      description: "Required to verify payment status."
+    - domain: "open.er-api.com"
+      description: "Required for real-time currency conversion."

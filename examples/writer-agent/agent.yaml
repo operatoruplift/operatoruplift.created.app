@@ -1,0 +1,11 @@
+# agent.yaml
+identity: "writer-agent-v1"
+capabilities: ["content-generation"]
+
+permissions:
+  memory:
+    - scope: "uplift://agent/private"
+      access: "read-write"
+      description: "Stores drafts."
+  orchestration:
+    allow_incoming: true # Allows other agents to delegate to this one
