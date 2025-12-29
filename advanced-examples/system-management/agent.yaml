@@ -1,0 +1,61 @@
+name: system-management
+version: 1.0.0
+description: Essential system management tools including kill switches, archiving, and cloud sync
+
+settings:
+  # Kill switch configuration
+  kill_switch:
+    enabled: true
+    emergency_contacts:
+      - "${ADMIN_EMAIL}"
+    grace_period: 30  # seconds
+    force_kill_after: 60  # seconds
+  
+  # Auto-archiver settings
+  archiver:
+    enabled: true
+    schedule: "0 2 * * 0"  # Weekly on Sunday at 2 AM
+    policies:
+      - path: "/workspace/logs"
+        age_days: 30
+        compress: true
+        destination: "./archives/logs"
+      - path: "/workspace/data"
+        age_days: 90
+        compress: true
+        destination: "./archives/data"
+  
+  # Cloud sync configuration
+  cloud_sync:
+    enabled: false
+    provider: "s3"  # s3, gcs, azure
+    schedule: "0 3 * * *"  # Daily at 3 AM
+    aws:
+      bucket: "${S3_BUCKET}"
+      region: "${AWS_REGION}"
+      access_key: "${AWS_ACCESS_KEY}"
+      secret_key: "${AWS_SECRET_KEY}"
+    sync_paths:
+      - local: "./data"
+        remote: "uplift/data"
+      - local: "./archives"
+        remote: "uplift/archives"
+
+permissions:
+  - filesystem:read
+  - filesystem:write
+  - filesystem:delete
+  - process:manage
+  - network:outbound
+
+resources:
+  max_memory: 512MB
+  max_cpu: 50%
+
+metadata:
+  author: "UPLIFT Core Team"
+  category: "system"
+  tags:
+    - management
+    - maintenance
+    - safety

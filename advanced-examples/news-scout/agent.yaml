@@ -1,0 +1,145 @@
+name: news-scout
+version: 1.0.0
+description: AI news monitoring agent with RSS feed aggregation and trend analysis
+
+triggers:
+  - type: schedule
+    cron: "0 */2 * * *"  # Every 2 hours
+    action: fetch_feeds
+  
+  - type: schedule
+    cron: "0 9 * * *"  # Daily at 9 AM
+    action: generate_digest
+
+settings:
+  # RSS Feeds to monitor
+  feeds:
+    - name: "TechCrunch AI"
+      url: "https://techcrunch.com/tag/artificial-intelligence/feed/"
+      category: "ai"
+      priority: "high"
+    
+    - name: "MIT Technology Review AI"
+      url: "https://www.technologyreview.com/topic/artificial-intelligence/feed/"
+      category: "research"
+      priority: "high"
+    
+    - name: "VentureBeat AI"
+      url: "https://venturebeat.com/category/ai/feed/"
+      category: "industry"
+      priority: "medium"
+    
+    - name: "AI News"
+      url: "https://artificialintelligence-news.com/feed/"
+      category: "general"
+      priority: "medium"
+  
+  # Monitoring configuration
+  monitoring:
+    poll_interval: 7200  # 2 hours in seconds
+    max_articles_per_feed: 50
+    max_age_days: 7  # Only process articles from last 7 days
+    deduplication: true
+    similarity_threshold: 0.85  # For duplicate detection
+  
+  # AI Analysis
+  analysis:
+    summarization:
+      enabled: true
+      max_length: 200  # words
+      model: "gemini-pro"
+    
+    sentiment:
+      enabled: true
+      track_over_time: true
+    
+    trends:
+      enabled: true
+      window_days: 7
+      min_frequency: 3  # Minimum mentions to be a trend
+    
+    entity_extraction:
+      enabled: true
+      types:
+        - companies
+        - people
+        - technologies
+        - locations
+  
+  # Content filtering
+  filters:
+    keywords:
+      include:
+        - "AI"
+        - "artificial intelligence"
+        - "machine learning"
+        - "deep learning"
+        - "neural network"
+        - "LLM"
+        - "GPT"
+      exclude:
+        - "advertisement"
+        - "sponsored"
+    
+    languages:
+      - "en"  # English only
+  
+  # Notifications and reporting
+  notifications:
+    daily_digest:
+      enabled: true
+      time: "09:00"
+      format: "html"
+    
+    weekly_report:
+      enabled: true
+      day: "monday"
+      time: "09:00"
+      include_trends: true
+    
+    alerts:
+      enabled: true
+      keywords:
+        - "breakthrough"
+        - "GPT-5"
+        - "AGI"
+        - "regulation"
+      notify_immediately: true
+    
+    channels:
+      - type: "email"
+        enabled: false
+        recipients:
+          - "${USER_EMAIL}"
+      - type: "slack"
+        enabled: false
+        webhook: "${SLACK_WEBHOOK}"
+  
+  # Storage
+  storage:
+    database: "./data/news.db"
+    retention_days: 90
+    cache_articles: true
+    cache_size_mb: 500
+
+permissions:
+  - filesystem:read
+  - filesystem:write:./data
+  - filesystem:write:./logs
+  - filesystem:write:./reports
+  - network:outbound  # For fetching feeds
+
+resources:
+  max_memory: 512MB
+  max_cpu: 30%
+  disk_space: 1GB
+
+metadata:
+  author: "UPLIFT Research Team"
+  category: "intelligence"
+  tags:
+    - news
+    - monitoring
+    - ai
+    - rss
+  documentation: "./README.md"
