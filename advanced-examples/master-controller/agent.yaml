@@ -1,0 +1,130 @@
+name: master-controller
+version: 1.0.0
+description: Central orchestration system for managing multiple UPLIFT agents
+
+settings:
+  # Agent management
+  agents:
+    directory: "./agents"
+    auto_discover: true
+    auto_start: false
+    health_check_interval: 60  # seconds
+    restart_on_failure: true
+    max_restart_attempts: 3
+  
+  # Scheduler configuration
+  scheduler:
+    type: "priority"  # priority, fifo, lifo
+    max_concurrent_tasks: 10
+    default_priority: 5
+    task_timeout: 3600  # seconds
+    enable_task_queue: true
+    queue_persistence: true
+  
+  # Resource management
+  resources:
+    monitoring_enabled: true
+    max_total_memory: "4GB"
+    max_total_cpu: 80  # percent
+    per_agent_defaults:
+      memory: "512MB"
+      cpu: 25  # percent
+      disk_io_mbps: 50
+    throttling:
+      enabled: true
+      cpu_threshold: 90
+      memory_threshold: 85
+  
+  # Message bus configuration
+  messaging:
+    bus_type: "in_memory"  # in_memory, redis, rabbitmq
+    max_queue_size: 1000
+    message_ttl: 3600  # seconds
+    enable_persistence: false
+    topics:
+      - "system.alerts"
+      - "security.events"
+      - "health.metrics"
+      - "agent.status"
+  
+  # Monitoring and observability
+  monitoring:
+    enable_dashboard: true
+    dashboard_port: 8501
+    metrics_retention_days: 30
+    log_level: "INFO"
+    export_metrics: true
+    metrics_format: "prometheus"  # prometheus, json, influxdb
+  
+  # REST API
+  api:
+    enabled: false
+    port: 8080
+    host: "0.0.0.0"
+    auth_required: false
+    api_key: "${API_KEY}"
+    cors_enabled: true
+  
+  # Workflows
+  workflows:
+    enabled: true
+    workflow_directory: "./workflows"
+    max_workflow_depth: 10
+    enable_parallel_execution: true
+  
+  # Failover and recovery
+  failover:
+    enabled: true
+    health_check_failures_threshold: 3
+    recovery_strategy: "restart"  # restart, recreate, failover
+    backup_controller:
+      enabled: false
+      host: "backup-controller.local"
+  
+  # Notifications
+  notifications:
+    channels:
+      - type: "log"
+        level: "error"
+      - type: "email"
+        enabled: false
+        smtp_host: "${SMTP_HOST}"
+        recipients:
+          - "${ADMIN_EMAIL}"
+      - type: "slack"
+        enabled: false
+        webhook_url: "${SLACK_WEBHOOK}"
+  
+  # Database
+  database:
+    type: "sqlite"  # sqlite, postgresql, mysql
+    path: "./data/master.db"
+    backup_interval: "daily"
+    backup_retention: 7  # days
+
+permissions:
+  - filesystem:read
+  - filesystem:write:./data
+  - filesystem:write:./logs
+  - filesystem:read:./agents
+  - filesystem:execute:./agents
+  - network:inbound:8501
+  - network:inbound:8080
+  - network:outbound
+  - process:create
+  - process:manage
+
+resources:
+  max_memory: 1GB
+  max_cpu: 50%
+  disk_space: 5GB
+
+metadata:
+  author: "UPLIFT Core Team"
+  category: "orchestration"
+  tags:
+    - orchestration
+    - multi-agent
+    - coordination
+    - management
+  documentation: "./README.md"
