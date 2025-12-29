@@ -1,0 +1,126 @@
+name: health-monitor
+version: 1.0.0
+description: Privacy-first personal health tracking agent with AI-powered trend analysis
+
+triggers:
+  - type: schedule
+    cron: "0 9 * * *"  # Morning prompt at 9 AM
+    action: prompt_log
+    prompt: "How are you feeling this morning?"
+  
+  - type: schedule
+    cron: "0 21 * * *"  # Evening prompt at 9 PM
+    action: prompt_log
+    prompt: "How was your day health-wise?"
+  
+  - type: schedule
+    cron: "0 0 * * 0"  # Weekly analysis every Sunday
+    action: analyze_trends
+  
+  - type: command
+    command: "log"
+    description: "Log a health entry"
+
+settings:
+  # Database settings
+  database:
+    path: "./data/health.db"
+    encrypted: false
+    backup_frequency: "daily"
+    retention_days: 0  # Keep forever
+  
+  # Entry types to track
+  entry_types:
+    - symptom
+    - medication
+    - meal
+    - exercise
+    - sleep
+    - mood
+    - vital_signs
+    - notes
+  
+  # Analysis settings
+  analysis:
+    min_entries_for_pattern: 10
+    correlation_threshold: 0.5
+    trend_window_days: 30
+    anomaly_detection: true
+  
+  # Severity scale
+  severity_scale:
+    none: 0
+    minimal: 1-2
+    mild: 3-4
+    moderate: 5-6
+    severe: 7-8
+    extreme: 9-10
+  
+  # Reminders
+  reminders:
+    medication:
+      enabled: true
+      advance_notice: 15  # minutes
+    hydration:
+      enabled: true
+      target_oz: 64
+      reminder_interval: 60  # minutes
+    exercise:
+      enabled: false
+      target_minutes: 30
+  
+  # Visualization
+  charts:
+    theme: "light"
+    default_period: 30  # days
+    metrics:
+      - sleep_hours
+      - mood_score
+      - exercise_minutes
+      - symptom_frequency
+  
+  # Privacy
+  privacy:
+    local_only: true
+    encryption: false
+    auto_backup: true
+    backup_location: "./backups"
+    anonymize_exports: false
+  
+  # AI Analysis
+  ai:
+    provider: "gemini"
+    model: "gemini-pro"
+    enable_insights: true
+    enable_predictions: true
+    enable_recommendations: true
+  
+  # Medical report format
+  medical_report:
+    include_charts: true
+    include_analysis: true
+    format: "pdf"
+    letterhead: false
+
+permissions:
+  - filesystem:read
+  - filesystem:write:./data
+  - filesystem:write:./logs
+  - filesystem:write:./backups
+  - filesystem:write:./reports
+
+resources:
+  max_memory: 256MB
+  max_cpu: 25%
+  disk_space: 500MB
+
+metadata:
+  author: "UPLIFT Health Team"
+  category: "health"
+  tags:
+    - health
+    - wellness
+    - privacy
+    - personal
+  documentation: "./README.md"
+  medical_disclaimer: "Not a medical device. For personal tracking only."
