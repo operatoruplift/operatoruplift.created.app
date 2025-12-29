@@ -1,0 +1,146 @@
+name: approval-system
+version: 1.0.0
+description: Human-in-the-loop approval system for high-stakes agent actions
+
+settings:
+  # Risk level configuration
+  risk_levels:
+    low:
+      timeout: 3600  # 1 hour
+      auto_approve: false
+      requires_comment: false
+    medium:
+      timeout: 1800  # 30 minutes
+      requires_comment: true
+      notify_immediately: true
+    high:
+      timeout: 900  # 15 minutes
+      requires_justification: true
+      escalate_after: 600  # 10 minutes
+      notify_immediately: true
+    critical:
+      timeout: 300  # 5 minutes
+      requires_multi_approval: true
+      escalate_immediately: true
+      notify_all: true
+  
+  # Action categories with specific requirements
+  action_categories:
+    financial:
+      base_risk: "high"
+      risk_multiplier: 2.0
+      requires_role: "finance_approver"
+      audit_level: "detailed"
+    
+    data_deletion:
+      base_risk: "critical"
+      risk_multiplier: 3.0
+      requires_role: "admin"
+      audit_level: "detailed"
+      requires_backup_confirmation: true
+    
+    deployment:
+      base_risk: "medium"
+      risk_multiplier: 1.5
+      requires_role: "ops_approver"
+      audit_level: "standard"
+    
+    security:
+      base_risk: "high"
+      risk_multiplier: 2.5
+      requires_role: "security_approver"
+      audit_level: "detailed"
+    
+    configuration:
+      base_risk: "medium"
+      risk_multiplier: 1.0
+      requires_role: "admin"
+      audit_level: "standard"
+  
+  # Notification channels
+  notifications:
+    channels:
+      - type: "dashboard"
+        enabled: true
+        realtime: true
+      
+      - type: "email"
+        enabled: true
+        smtp_host: "${SMTP_HOST}"
+        smtp_port: 587
+        from_address: "uplift-approvals@company.com"
+        recipients:
+          - "${ADMIN_EMAIL}"
+      
+      - type: "slack"
+        enabled: false
+        webhook_url: "${SLACK_WEBHOOK_URL}"
+        mention_on_critical: true
+      
+      - type: "sms"
+        enabled: false
+        provider: "twilio"
+        recipients:
+          - "${ADMIN_PHONE}"
+  
+  # Dashboard configuration
+  dashboard:
+    enabled: true
+    port: 8501
+    host: "0.0.0.0"
+    auth_required: false
+    refresh_interval: 5  # seconds
+    show_history_days: 30
+    theme: "light"
+  
+  # Audit logging
+  audit:
+    enabled: true
+    database_path: "./data/audit.db"
+    retention_days: 365
+    export_format: "pdf"
+    include_sensitive_data: false
+    log_level: "detailed"
+  
+  # Escalation rules
+  escalation:
+    enabled: true
+    escalation_chain:
+      - role: "ops_approver"
+        after_minutes: 10
+      - role: "admin"
+        after_minutes: 20
+      - role: "executive"
+        after_minutes: 30
+  
+  # Cooldown periods (prevent rapid repeated actions)
+  cooldown:
+    enabled: true
+    periods:
+      critical: 3600  # 1 hour
+      high: 1800  # 30 minutes
+      medium: 600  # 10 minutes
+      low: 300  # 5 minutes
+
+permissions:
+  - filesystem:read
+  - filesystem:write:./data
+  - filesystem:write:./logs
+  - filesystem:write:./reports
+  - network:inbound:8501
+  - network:outbound:smtp
+
+resources:
+  max_memory: 256MB
+  max_cpu: 25%
+  disk_space: 1GB
+
+metadata:
+  author: "UPLIFT Security Team"
+  category: "safety"
+  tags:
+    - approval
+    - human-in-loop
+    - safety
+    - compliance
+  documentation: "./README.md"

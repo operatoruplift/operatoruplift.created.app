@@ -1,0 +1,24 @@
+# Approval System Dependencies
+
+# Core dependencies
+PyYAML>=6.0.1
+
+# Database
+# sqlite3 is built-in
+
+# Web dashboard
+streamlit>=1.28.0
+plotly>=5.17.0
+pandas>=2.0.0
+
+# Optional: Email notifications
+# smtplib is built-in
+
+# Optional: SMS notifications
+# twilio>=8.10.0
+
+# Optional: Slack notifications
+requests>=2.31.0
+
+# Utilities
+colorama>=0.4.6
